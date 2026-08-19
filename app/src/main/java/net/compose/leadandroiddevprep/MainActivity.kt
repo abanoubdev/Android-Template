@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.StringRes
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -16,18 +17,31 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import net.compose.leadandroiddevprep.auth.navigation.AuthEntryProvider
 import net.compose.leadandroiddevprep.composables.MerchantDashboard
 import net.compose.leadandroiddevprep.composables.TransactionGenerator
+import net.compose.leadandroiddevprep.domain.model.Product
 import net.compose.leadandroiddevprep.products.navigation.Products
 import net.compose.leadandroiddevprep.products.navigation.ProductsEntryProvider
+import net.compose.leadandroiddevprep.products.presentation.ProductListUiState
 import net.compose.leadandroiddevprep.ui.theme.LeadAndroidDevPrepTheme
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.milliseconds
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -56,35 +70,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-//@Composable
-//fun MainNavigation() {
-//
-//    val backStack = rememberNavBackStack(Products)
-//
-//    NavDisplay(
-//        backStack = backStack,
-//        onBack = { backStack.removeLastOrNull() },
-//        entryDecorators = listOf(
-//            rememberSaveableStateHolderNavEntryDecorator(),
-//            rememberViewModelStoreNavEntryDecorator()
-//        ), entryProvider = entryProvider {
-//            ProductsEntryProvider(
-//                backStack = backStack,
-//                onNavigateToDetails = {
-//
-//                }
-//            )
-//            AuthEntryProvider(backStack = backStack) {
-//                backStack.removeLastOrNull()
-//            }
-//        },
-//        transitionSpec = {
-//            slideInHorizontally(initialOffsetX = { it }) togetherWith slideOutHorizontally(
-//                targetOffsetX = { -it }
-//            )
-//        }, popTransitionSpec = {
-//            slideInHorizontally(initialOffsetX = { -it }) togetherWith slideOutHorizontally(
-//                targetOffsetX = { it })
-//        })
-//}

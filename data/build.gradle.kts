@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "net.compose.leadandroiddevprep.data"
-    compileSdk = 36
+    compileSdk = 37
 
     buildFeatures {
         buildConfig = true
