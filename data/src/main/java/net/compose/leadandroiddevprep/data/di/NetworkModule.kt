@@ -1,6 +1,7 @@
 package net.compose.leadandroiddevprep.data.di
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import dagger.Module
 import dagger.Provides
@@ -27,9 +28,13 @@ class NetworkModule {
     fun providesOkHttpClient(
         @ApplicationContext context: Context
     ): OkHttpClient {
-        val isDebuggable = BuildConfig.DEBUG
+
+        val isAppDebuggable = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         val builder = OkHttpClient.Builder()
-        if (isDebuggable)
+        if (isAppDebuggable) {
+            builder.addInterceptor(ChuckerInterceptor(context))
+        }
+        if (isAppDebuggable)
             builder.addInterceptor(ChuckerInterceptor(context))
 
         builder.addInterceptor { chain ->
