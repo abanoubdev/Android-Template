@@ -17,14 +17,54 @@ class ProductRepositoryOfflineFirstImpl @Inject constructor(
     private val api: ProductApiService,
 ) : ProductRepositoryOfflineFirst {
 
+    //    override fun getProducts(): Flow<Resource<List<Product>>> = channelFlow {
+//
+//        send(Resource.Loading)
+//
+//        launch {
+//            dao.getProducts().collectLatest {
+//                if (it.isNotEmpty())
+//                    send(Resource.Success(it.map { it.toDomain() }))
+//            }
+//        }
+//
+//        val productResult = safeApiCall {
+//            api.getProducts()
+//        }
+//
+//        when (productResult) {
+//            is Resource.Success -> {
+//                val entities = productResult.data.map { networkItem ->
+//                    networkItem.toEntity()
+//                }
+//                if (entities.isNotEmpty())
+//                    dao.insertProducts(entities)
+//                else {
+//                    send(Resource.Empty(showEmpty = dao.getAllProducts().isEmpty()))
+//                }
+//            }
+//
+//            is Resource.Error -> {
+//                val localProducts = dao.getAllProducts()
+//                if (localProducts.isNotEmpty())
+//                    send(Resource.Success(localProducts.map { it.toDomain() }))
+//                else
+//                    send(Resource.Error(productResult.exception))
+//            }
+//
+//            else -> {}
+//        }
+//    }
     override fun getProducts(): Flow<Resource<List<Product>>> = channelFlow {
-
         send(Resource.Loading)
 
         launch {
-            dao.getProducts().collectLatest {
-                if (it.isNotEmpty())
-                    send(Resource.Success(it.map { it.toDomain() }))
+            dao.getProducts().collectLatest { localData ->
+                if (localData.isNotEmpty()) {
+                    send(Resource.Success(localData.map { it.toDomain() }))
+                } else {
+                    send(Resource.Idle)
+                }
             }
         }
 
@@ -37,22 +77,24 @@ class ProductRepositoryOfflineFirstImpl @Inject constructor(
                 val entities = productResult.data.map { networkItem ->
                     networkItem.toEntity()
                 }
-                if (entities.isNotEmpty())
+                if (entities.isNotEmpty()) {
                     dao.insertProducts(entities)
-                else {
-                    send(Resource.Empty(showEmpty = dao.getAllProducts().isEmpty()))
+                } else {
+                    val isEmpty = dao.getAllProducts().isEmpty()
+                    send(Resource.Empty(showEmpty = isEmpty))
                 }
             }
 
             is Resource.Error -> {
                 val localProducts = dao.getAllProducts()
-                if (localProducts.isNotEmpty())
+                if (localProducts.isNotEmpty()) {
                     send(Resource.Success(localProducts.map { it.toDomain() }))
-                else
+                } else {
                     send(Resource.Error(productResult.exception))
+                }
             }
 
-            else -> {}
+            else -> send(Resource.Error(Throwable("Unknown error")))
         }
     }
 }

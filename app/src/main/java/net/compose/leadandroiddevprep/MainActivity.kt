@@ -70,3 +70,36 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+
+@Composable
+fun MainNavigation() {
+
+    val backStack = rememberNavBackStack(Products)
+
+    NavDisplay(
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
+        ), entryProvider = entryProvider {
+            ProductsEntryProvider(
+                backStack = backStack,
+                onNavigateToDetails = {
+
+                }
+            )
+            AuthEntryProvider(backStack = backStack) {
+                backStack.removeLastOrNull()
+            }
+        },
+        transitionSpec = {
+            slideInHorizontally(initialOffsetX = { it }) togetherWith slideOutHorizontally(
+                targetOffsetX = { -it }
+            )
+        }, popTransitionSpec = {
+            slideInHorizontally(initialOffsetX = { -it }) togetherWith slideOutHorizontally(
+                targetOffsetX = { it })
+        })
+}
